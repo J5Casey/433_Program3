@@ -5,8 +5,9 @@ import java.io.IOException;
 public class TradeStock {
     public static void main(String[] args){
         if(args.length != 2){
-            System.out.println("Incorrect number of arguments. Please run as java -jar TradeStock.jar {binary file} {algorithm to use}\n");
-            System.out.println("The options for algorithms (not case sensitive) are: DivCon_nlogn, DivCon_linear, DecCon_linear, all");
+            System.out.println("Incorrect number of arguments. Please run as java TradeStock {binary file} {number representation of algorithm to use}");
+            System.out.println("For example, \"java Tradestock mystock.bin 2\", which would run the DivCon_linear algorithm on a file mystock.bin");
+            System.out.println("The options for algorithms (not case sensitive) are: \n\t1. DivCon_nlogn, \n\t2. DivCon_linear, \n\t3. DecCon_linear, \n\t4. all");
             return;
         }
 
@@ -25,22 +26,22 @@ public class TradeStock {
             System.out.printf("Jack Casey\n%s", args[0]);
             String algorithm = args[1].toLowerCase();
             switch (algorithm){
-                case "divcon_nlogn":
-                    DivCon_NlogN(n, prices);
+                case "1":
+                    DivConNlogN(n, prices);
                     break;
-                case "divcon_linear":
-                    DivCon_Linear(n, prices);
+                case "2":
+                    DivConLinear(n, prices);
                     break;
-                case "deccon_linear":
-                    DecCon_Linear(n, prices);
+                case "3":
+                    DecConLinear(n, prices);
                     break;
-                case "all":
-                    DivCon_NlogN(n, prices);
-                    DivCon_Linear(n, prices);
-                    DecCon_Linear(n, prices);
+                case "4":
+                    DivConNlogN(n, prices);
+                    DivConLinear(n, prices);
+                    DecConLinear(n, prices);
                     break;
                 default:
-                    System.out.println("Invalid algorithm specified. Please choose one of the following: DivCon_nlogn, DivCon_linear, DecCon_linear, all");
+                    System.out.println("Invalid algorithm specified. Please choose one of the following: \n\t1. DivCon_nlogn, \n\t2. DivCon_linear, \n\t3. DecCon_linear, \n\t4. all");
             }
         } catch (IOException e) {
             System.out.println("An error occurred while reading the binary file: " + e.getMessage());
@@ -52,12 +53,12 @@ public class TradeStock {
         
     }
 
-    public static void DivCon_NlogN(int length, float[] prices) {
+    public static void DivConNlogN(int length, float[] prices) {
         int[] result = divConNlogN(prices, 0, length - 1);
         int buyPos = result[0];
         int sellPos = result[1];
         float profit = prices[sellPos] - prices[buyPos];
-        System.out.printf("\nTheta(nlogn) Divide and Conquer\n%d, %d, %.4f", buyPos, sellPos, profit);
+        System.out.printf("\nTheta(nlogn) Divide and Conquer\n\t%d, %d, %.4f", buyPos, sellPos, profit);
     }
     
     private static int[] divConNlogN(float[] prices, int left, int right) {
@@ -103,46 +104,105 @@ public class TradeStock {
         return new int[]{leftPos, rightPos};
     }
     
-    public static void DivCon_Linear(int length, float[] prices) {
-        int[] result = divConLinear(prices, 0, length - 1);
-        int buyPos = result[0];
-        int sellPos = result[1];
-        float profit = prices[sellPos] - prices[buyPos];
-        System.out.printf("\nTheta(n) Divide and Conquer\n%d, %d, %.4f", buyPos, sellPos, profit);
+    public static void DivConLinear(int length, float[] prices) {
+        double[] result = divConLinear(prices, 0, length - 1);
+        int buyPos = (int) result[0];
+        int sellPos = (int) result[1];
+        float profit = (float) result[2];
+        System.out.printf("\nTheta(n) Divide and Conquer\n\t%d, %d, %.4f", buyPos, sellPos, profit);
     }
     
-    private static int[] divConLinear(float[] prices, int left, int right) {
-        if (left == right) {
-            return new int[]{left, right};
-        }
+    private static double[] divConLinear(float[] prices, int start, int end) {
+        int buyIndex, sellIndex, minLeftIndex, maxRightIndex;
+        float maxProfit = 0;
+        double[] result = new double[5];
     
-        int mid = (right+left)  / 2;
-        int[] leftResult = divConLinear(prices, left, mid);
-        int[] rightResult = divConLinear(prices, mid + 1, right);
+        if (end - start == 1) {
+            buyIndex = start;
+            sellIndex = end;
+            maxProfit = prices[sellIndex] - prices[buyIndex];
     
-        int leftMin = leftResult[0];
-        int leftMax = leftResult[1];
-        int rightMin = rightResult[0];
-        int rightMax = rightResult[1];
+            minLeftIndex = prices[start] <= prices[end] ? start : end;
+            maxRightIndex = prices[start] <= prices[end] ? end : start;
     
-        float leftProfit = prices[leftMax] - prices[leftMin];
-        float rightProfit = prices[rightMax] - prices[rightMin];
+            result[0] = buyIndex;
+            result[1] = sellIndex;
+            result[2] = maxProfit;
+            result[3] = minLeftIndex;
+            result[4] = maxRightIndex;
+        } else if (end - start == 2) {
+            float profit1 = prices[end] - prices[start];
+            float profit2 = prices[end - 1] - prices[start];
+            float profit3 = prices[end] - prices[start + 1];
     
-        int crossMin = Math.min(leftMin, rightMin);
-        int crossMax = Math.max(leftMax, rightMax);
-        float crossProfit = prices[crossMax] - prices[crossMin];
+            if (profit1 >= profit2 && profit1 >= profit3) {
+                buyIndex = start;
+                sellIndex = end;
+                maxProfit = profit1;
+            } else if (profit2 >= profit3) {
+                buyIndex = start;
+                sellIndex = end - 1;
+                maxProfit = profit2;
+            } else {
+                buyIndex = start + 1;
+                sellIndex = end;
+                maxProfit = profit3;
+            }
     
-        if (crossProfit > Math.max(leftProfit, rightProfit)) {
-            return new int[]{crossMin, crossMax};
-        } else if (leftProfit > rightProfit) {
-            return leftResult;
+            float minLeft = Math.min(prices[start], Math.min(prices[end - 1], prices[end]));
+            float maxRight = Math.max(prices[start], Math.max(prices[end - 1], prices[end]));
+    
+            minLeftIndex = prices[start] == minLeft ? start : (prices[end - 1] == minLeft ? end - 1 : end);
+            maxRightIndex = prices[start] == maxRight ? start : (prices[end - 1] == maxRight ? end - 1 : end);
+    
+            result[0] = buyIndex;
+            result[1] = sellIndex;
+            result[2] = maxProfit;
+            result[3] = minLeftIndex;
+            result[4] = maxRightIndex;
         } else {
-            return rightResult;
+            double[] leftResult = new double[5];
+            double[] rightResult = new double[5];
+    
+            int mid = (start + end) / 2;
+            leftResult = divConLinear(prices, start, mid);
+            rightResult = divConLinear(prices, mid + 1, end);
+    
+            float leftProfit = (float) leftResult[2];
+            float rightProfit = (float) rightResult[2];
+            float crossProfit = prices[(int) rightResult[4]] - prices[(int) leftResult[3]];
+    
+            if (leftProfit >= rightProfit && leftProfit >= crossProfit) {
+                buyIndex = (int) leftResult[0];
+                sellIndex = (int) leftResult[1];
+                maxProfit = leftProfit;
+            } else if (rightProfit >= crossProfit) {
+                buyIndex = (int) rightResult[0];
+                sellIndex = (int) rightResult[1];
+                maxProfit = rightProfit;
+            } else {
+                buyIndex = (int) leftResult[3];
+                sellIndex = (int) rightResult[4];
+                maxProfit = crossProfit;
+            }
+    
+            minLeftIndex = prices[(int) leftResult[3]] <= prices[(int) rightResult[3]] ? (int) leftResult[3] : (int) rightResult[3];
+            maxRightIndex = prices[(int) leftResult[4]] >= prices[(int) rightResult[4]] ? (int) leftResult[4] : (int) rightResult[4];
+    
+            result[0] = buyIndex;
+            result[1] = sellIndex;
+            result[2] = maxProfit;
+            result[3] = minLeftIndex;
+            result[4] = maxRightIndex;
         }
+        return result;
     }
     
     
-    public static void DecCon_Linear(int length, float[] prices) {
+    
+    
+    
+    public static void DecConLinear(int length, float[] prices) {
         float min = prices[0], max = prices[0], profit = 0;
         int buyPos = 0, sellPos = 1, minPos = 0;
         for (int i = 1; i < length; i++) {
@@ -157,6 +217,6 @@ public class TradeStock {
                 profit = max - min;
             }
         }
-        System.out.printf("\nTheta(n) Decrease and Conquer\n%d, %d, %.4f", buyPos,sellPos,profit);
+        System.out.printf("\nTheta(n) Decrease and Conquer\n\t%d, %d, %.4f", buyPos,sellPos,profit);
     }
 }
