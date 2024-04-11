@@ -19,6 +19,7 @@ public class TradeStock {
             for (int i = 0; i < n; i++) {
                 prices[i] = dis.readFloat();
             }
+            dis.close();
     
             if(n<2){
                 System.out.println("Insufficient data to perform trading analysis.");
