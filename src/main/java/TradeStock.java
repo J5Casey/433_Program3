@@ -63,10 +63,16 @@ public class TradeStock {
     
     private static int[] divConNlogN(float[] prices, int left, int right) {
         if (left == right) {
+            //this code is awful, but I didn't feel like refactoring my base case when I found out we couldn't buy and sell on the same day
+            if(left < prices.length-1){
+                right++;
+            } else if (right == prices.length - 1){
+                left--;
+            }
             return new int[]{left, right};
         }
     
-        int mid = (right+left)  / 2;;
+        int mid = (right+left)  / 2;
         int[] leftResult = divConNlogN(prices, left, mid);
         int[] rightResult = divConNlogN(prices, mid + 1, right);
         int[] crossResult = maxCrossingProfit(prices, left, mid, right);
@@ -198,25 +204,22 @@ public class TradeStock {
         return result;
     }
     
-    
-    
-    
-    
     public static void DecConLinear(int length, float[] prices) {
-        float min = prices[0], max = prices[0], profit = 0;
-        int buyPos = 0, sellPos = 1, minPos = 0;
+        float min = prices[0], max = prices[1], profit = 0;
+        int buyPos = 0, sellPos = 1, minIndex = 0;
         for (int i = 1; i < length; i++) {
             if (prices[i] < min) {
                 min = prices[i];
-                minPos = i;
+                minIndex = i;
             }
             if (prices[i] - min > profit) {
                 max = prices[i];
-                buyPos = minPos;
+                buyPos = minIndex;
                 sellPos = i;
                 profit = max - min;
             }
         }
+        profit = prices[sellPos] - prices[buyPos];
         System.out.printf("\nTheta(n) Decrease and Conquer\n\t%d, %d, %.4f", buyPos,sellPos,profit);
     }
 }

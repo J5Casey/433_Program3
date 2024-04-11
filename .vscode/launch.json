@@ -17,7 +17,7 @@
             "mainClass": "TradeStock",
             "projectName": "433_Program3",
             "args": [
-                "mystock0.bin",
+                "mystock4.bin",
                 "4"
             ]
         }
