@@ -1,3 +1,4 @@
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,7 +12,8 @@ public class TradeStock {
             return;
         }
 
-        try (DataInputStream dis = new DataInputStream(new FileInputStream(args[0]))) {
+        try {
+            DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(args[0])));
             int n = dis.readInt();
             double[] prices = new double[n];
             for (int i = 0; i < n; i++) {
