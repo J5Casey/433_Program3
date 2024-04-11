@@ -7,7 +7,7 @@ public class TradeStock {
     public static void main(String[] args){
         if(args.length != 2){
             System.out.println("Incorrect number of arguments. Please run as java TradeStock {binary file} {number representation of algorithm to use}");
-            System.out.println("For example, \"java Tradestock mystock.bin 2\", which would run the DivCon_linear algorithm on a file mystock.bin");
+            System.out.println("For example, \"java -jar Tradestock.jar mystock.bin 2\", which would run the DivCon_linear algorithm on a file mystock.bin");
             System.out.println("The options for algorithms (not case sensitive) are: \n\t1. DivCon_nlogn, \n\t2. DivCon_linear, \n\t3. DecCon_linear, \n\t4. all");
             return;
         }
