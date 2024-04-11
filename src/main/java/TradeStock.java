@@ -13,7 +13,7 @@ public class TradeStock {
 
         try (DataInputStream dis = new DataInputStream(new FileInputStream(args[0]))) {
             int n = dis.readInt();
-            float[] prices = new float[n];
+            double[] prices = new double[n];
             for (int i = 0; i < n; i++) {
                 prices[i] = dis.readFloat();
             }
@@ -53,15 +53,15 @@ public class TradeStock {
         
     }
 
-    public static void DivConNlogN(int length, float[] prices) {
+    public static void DivConNlogN(int length, double[] prices) {
         int[] result = divConNlogN(prices, 0, length - 1);
         int buyPos = result[0];
         int sellPos = result[1];
-        float profit = prices[sellPos] - prices[buyPos];
+        double profit = prices[sellPos] - prices[buyPos];
         System.out.printf("\nTheta(nlogn) Divide and Conquer\n\t%d, %d, %.4f", buyPos, sellPos, profit);
     }
     
-    private static int[] divConNlogN(float[] prices, int left, int right) {
+    private static int[] divConNlogN(double[] prices, int left, int right) {
         if (left == right) {
             //this code is awful, but I didn't feel like refactoring my base case when I found out we couldn't buy and sell on the same day
             if(left < prices.length-1){
@@ -88,8 +88,8 @@ public class TradeStock {
         }
     }
     
-    private static int[] maxCrossingProfit(float[] prices, int left, int mid, int right) {
-        float leftMin = prices[mid];
+    private static int[] maxCrossingProfit(double[] prices, int left, int mid, int right) {
+        double leftMin = prices[mid];
         int leftPos = mid;
         for (int i = mid; i >= left; i--) {
             if (prices[i] < leftMin) {
@@ -98,7 +98,7 @@ public class TradeStock {
             }
         }
     
-        float rightMax = prices[mid+1];
+        double rightMax = prices[mid+1];
         int rightPos = mid + 1;
         for (int i = mid + 1; i <= right; i++) {
             if (prices[i] > rightMax) {
@@ -110,17 +110,17 @@ public class TradeStock {
         return new int[]{leftPos, rightPos};
     }
     
-    public static void DivConLinear(int length, float[] prices) {
+    public static void DivConLinear(int length, double[] prices) {
         double[] result = divConLinear(prices, 0, length - 1);
         int buyPos = (int) result[0];
         int sellPos = (int) result[1];
-        float profit = (float) result[2];
+        double profit = (double) result[2];
         System.out.printf("\nTheta(n) Divide and Conquer\n\t%d, %d, %.4f", buyPos, sellPos, profit);
     }
     
-    private static double[] divConLinear(float[] prices, int start, int end) {
+    private static double[] divConLinear(double[] prices, int start, int end) {
         int buyIndex, sellIndex, minLeftIndex, maxRightIndex;
-        float maxProfit = 0;
+        double maxProfit = 0;
         double[] result = new double[5];
     
         if (end - start == 1) {
@@ -137,9 +137,9 @@ public class TradeStock {
             result[3] = minLeftIndex;
             result[4] = maxRightIndex;
         } else if (end - start == 2) {
-            float profit1 = prices[end] - prices[start];
-            float profit2 = prices[end - 1] - prices[start];
-            float profit3 = prices[end] - prices[start + 1];
+            double profit1 = prices[end] - prices[start];
+            double profit2 = prices[end - 1] - prices[start];
+            double profit3 = prices[end] - prices[start + 1];
     
             if (profit1 >= profit2 && profit1 >= profit3) {
                 buyIndex = start;
@@ -155,8 +155,8 @@ public class TradeStock {
                 maxProfit = profit3;
             }
     
-            float minLeft = Math.min(prices[start], Math.min(prices[end - 1], prices[end]));
-            float maxRight = Math.max(prices[start], Math.max(prices[end - 1], prices[end]));
+            double minLeft = Math.min(prices[start], Math.min(prices[end - 1], prices[end]));
+            double maxRight = Math.max(prices[start], Math.max(prices[end - 1], prices[end]));
     
             minLeftIndex = prices[start] == minLeft ? start : (prices[end - 1] == minLeft ? end - 1 : end);
             maxRightIndex = prices[start] == maxRight ? start : (prices[end - 1] == maxRight ? end - 1 : end);
@@ -174,9 +174,9 @@ public class TradeStock {
             leftResult = divConLinear(prices, start, mid);
             rightResult = divConLinear(prices, mid + 1, end);
     
-            float leftProfit = (float) leftResult[2];
-            float rightProfit = (float) rightResult[2];
-            float crossProfit = prices[(int) rightResult[4]] - prices[(int) leftResult[3]];
+            double leftProfit = (double) leftResult[2];
+            double rightProfit = (double) rightResult[2];
+            double crossProfit = prices[(int) rightResult[4]] - prices[(int) leftResult[3]];
     
             if (leftProfit >= rightProfit && leftProfit >= crossProfit) {
                 buyIndex = (int) leftResult[0];
@@ -204,8 +204,8 @@ public class TradeStock {
         return result;
     }
     
-    public static void DecConLinear(int length, float[] prices) {
-        float min = prices[0], max = prices[1], profit = 0;
+    public static void DecConLinear(int length, double[] prices) {
+        double min = prices[0], max = prices[1], profit = 0;
         int buyPos = 0, sellPos = 1, minIndex = 0;
         for (int i = 1; i < length; i++) {
             if (prices[i] < min) {
