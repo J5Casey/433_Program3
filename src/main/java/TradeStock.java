@@ -117,13 +117,13 @@ public class TradeStock {
         double[] result = divConLinear(prices, 0, length - 1);
         int buyPos = (int) result[0];
         int sellPos = (int) result[1];
-        double profit = (double) result[2];
+        double profit = result[2];
         System.out.printf("\nTheta(n) Divide and Conquer\n\t%d, %d, %.4f", buyPos, sellPos, profit);
     }
     
     private static double[] divConLinear(double[] prices, int start, int end) {
         int buyIndex, sellIndex, minLeftIndex, maxRightIndex;
-        double maxProfit = 0;
+        double maxProfit;
         double[] result = new double[5];
     
         if (end - start == 1) {
@@ -170,15 +170,15 @@ public class TradeStock {
             result[3] = minLeftIndex;
             result[4] = maxRightIndex;
         } else {
-            double[] leftResult = new double[5];
-            double[] rightResult = new double[5];
+            double[] leftResult;
+            double[] rightResult;
     
             int mid = (start + end) / 2;
             leftResult = divConLinear(prices, start, mid);
             rightResult = divConLinear(prices, mid + 1, end);
     
-            double leftProfit = (double) leftResult[2];
-            double rightProfit = (double) rightResult[2];
+            double leftProfit =  leftResult[2];
+            double rightProfit =  rightResult[2];
             double crossProfit = prices[(int) rightResult[4]] - prices[(int) leftResult[3]];
     
             if (leftProfit >= rightProfit && leftProfit >= crossProfit) {
@@ -208,7 +208,7 @@ public class TradeStock {
     }
     
     public static void DecConLinear(int length, double[] prices) {
-        double min = prices[0], max = prices[1], profit = 0;
+        double min = prices[0], max, profit = 0;
         int buyPos = 0, sellPos = 1, minIndex = 0;
         for (int i = 1; i < length; i++) {
             if (prices[i] < min) {
